@@ -1,4 +1,14 @@
-# WaveWeaver
+<p align="center">
+  <img src="docs/logo.svg" alt="WaveWeaver logo" width="120" height="120" />
+</p>
+
+<h1 align="center">WaveWeaver</h1>
+
+<p align="center">
+  A local studio for sound and video. Preview every change before it touches the whole file.
+  <br />
+  <a href="https://github.com/steftsotras/WaveWeaver/releases/latest"><strong>Download for Windows</strong></a>
+</p>
 
 A local studio for everyday audio and video work. Drop files into bins, stack
 up edits (trim, jump-cut the pauses, EQ, compress, de-hum, normalise
