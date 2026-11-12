@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>WaveWeaver</title>
+	<meta name="description" content="A free, local audio and video studio for Windows. Edit, clean up, caption, mix and master, and preview every change before it touches the whole file." />
+	<meta property="og:title" content="WaveWeaver" />
+	<meta property="og:description" content="A free, local audio and video studio. Preview every change before it touches the whole file." />
+	<meta property="og:type" content="website" />
+	<meta name="theme-color" content="#0a0a0a" />
+	<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+	<style>
+		:root {
+			--bg: #ffffff;
+			--ink: #0a0a0a;
+			--accent: #ff4f00;
+			--muted: #6b6b6b;
+			--rule: #0a0a0a;
+			--wash: #f2f2f2;
+			--on-accent: #0a0a0a;
+			--screen: #0a0a0a;
+			--screen-ink: #ffffff;
+			--screen-muted: #8a8a8a;
+			--btn: #0a0a0a;
+			--on-btn: #ffffff;
+			--sans: 'Unbounded', system-ui, sans-serif;
+			--mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+			--gutter: clamp(1rem, 4vw, 3rem);
+			--max: 72rem;
+			color-scheme: light;
+		}
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme='light']) {
+				--bg: #111111; --ink: #ececec; --muted: #9a9a9a; --rule: #ececec; --wash: #1e1e1e;
+				--screen: #000000; --screen-ink: #ececec; --btn: #ececec; --on-btn: #0a0a0a;
+				color-scheme: dark;
+			}
+		}
+		:root[data-theme='dark'] {
+			--bg: #111111; --ink: #ececec; --muted: #9a9a9a; --rule: #ececec; --wash: #1e1e1e;
+			--screen: #000000; --screen-ink: #ececec; --btn: #ececec; --on-btn: #0a0a0a;
+			color-scheme: dark;
+		}
+
+		* { box-sizing: border-box; }
+		html { -webkit-text-size-adjust: 100%; }
+		body {
+			margin: 0;
+			background: var(--bg);
+			color: var(--ink);
+			font: 400 1rem/1.55 var(--sans);
+			overflow-x: hidden;
+		}
+		a { color: inherit; text-decoration: none; }
+		a:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+		.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+		.mono { font-family: var(--mono); }
+		.muted { color: var(--muted); }
+
+		/* Top bar: inside the same container as the content. */
+		header .wrap {
+			display: flex; align-items: center; justify-content: space-between;
+			gap: 1rem; padding-top: 1.25rem; padding-bottom: 1.25rem;
+			border-bottom: 1px solid var(--rule);
+		}
+		.mark { display: flex; align-items: center; gap: 0.6rem; font-weight: 800; letter-spacing: -0.02em; }
+		.mark svg { width: 28px; height: 28px; display: block; }
+		header nav { display: flex; gap: 1.5rem; font-size: 0.8125rem; }
+
+		/* Hero */
+		.hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: clamp(2rem, 5vw, 4rem); align-items: center; padding-top: clamp(3rem, 8vw, 6rem); padding-bottom: clamp(3rem, 6vw, 5rem); }
+		h1 { font-size: clamp(2.4rem, 6vw, 4.5rem); line-height: 1; letter-spacing: -0.03em; font-weight: 800; margin: 0 0 1.5rem; }
+		.lede { font-size: clamp(1rem, 1.6vw, 1.15rem); max-width: 34rem; margin: 0 0 2rem; }
+		.cta { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+		.btn {
+			display: inline-flex; align-items: center; gap: 0.6rem;
+			padding: 0.95rem 1.4rem; font: 600 0.9rem var(--sans);
+			border: 1px solid var(--btn); background: var(--btn); color: var(--on-btn);
+		}
+		.btn.ghost { background: transparent; color: var(--ink); }
+		.btn svg { width: 16px; height: 16px; }
+		.meta { margin-top: 1rem; font: 0.75rem var(--mono); color: var(--muted); }
+
+		/* The A/B demo: what "preview first" means. */
+		.ab { margin: 0; background: var(--screen); color: var(--screen-ink); padding: 1.25rem; font-family: var(--mono); font-size: 0.75rem; }
+		.ab-top { display: flex; justify-content: space-between; gap: 1rem; color: var(--screen-muted); margin-bottom: 0.9rem; }
+		.ab-wave { display: block; width: 100%; height: 140px; }
+		.ab-wave rect.bar { fill: var(--screen-ink); transition: height 0.35s ease, y 0.35s ease; }
+		.ab-wave rect.sel { fill: var(--accent); opacity: 0.22; }
+		.ab-wave line.head { stroke: var(--accent); stroke-width: 2; }
+		.ab-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.9rem; flex-wrap: wrap; }
+		.ab-toggle { display: inline-flex; border: 1px solid var(--screen-ink); }
+		.ab-toggle button {
+			font: 600 0.75rem var(--mono); padding: 0.5rem 0.8rem; cursor: pointer;
+			background: transparent; color: var(--screen-ink); border: 0;
+		}
+		.ab-toggle button + button { border-left: 1px solid var(--screen-ink); }
+		.ab-toggle button[aria-pressed='true'] { background: var(--accent); color: var(--on-accent); }
+		.ab-lufs { color: var(--screen-muted); }
+		.ab-lufs b { color: var(--screen-ink); font-weight: 600; }
+		.ab-cmd { margin-top: 0.9rem; padding-top: 0.9rem; border-top: 1px solid #333; color: var(--screen-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+		/* Sections */
+		section { padding: clamp(3rem, 6vw, 5rem) 0; border-top: 1px solid var(--rule); }
+		h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); line-height: 1.1; letter-spacing: -0.02em; font-weight: 800; margin: 0 0 2.5rem; }
+		.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-left: 1px solid var(--rule); border-top: 1px solid var(--rule); }
+		.cell { padding: 1.5rem; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+		.cell .ico { width: 36px; height: 36px; margin-bottom: 1rem; }
+		.cell .ico * { stroke: var(--ink); fill: none; stroke-width: 2; }
+		.cell h3 { font-size: 1rem; margin: 0 0 0.5rem; font-weight: 600; }
+		.cell p { margin: 0; font-size: 0.875rem; color: var(--muted); }
+
+		.steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+		.steps li { counter-increment: s; }
+		.steps li::before { content: '0' counter(s); display: block; font: 600 0.75rem var(--mono); color: var(--muted); margin-bottom: 0.75rem; }
+		.steps h3 { font-size: 1rem; margin: 0 0 0.5rem; font-weight: 600; }
+		.steps p { margin: 0; font-size: 0.875rem; color: var(--muted); }
+
+		.closer { display: flex; justify-content: space-between; align-items: center; gap: 2rem; flex-wrap: wrap; }
+		.closer h2 { margin: 0; }
+
+		footer .wrap { padding-top: 2rem; padding-bottom: 3rem; border-top: 1px solid var(--rule); display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: 0.75rem; color: var(--muted); }
+		footer a { color: var(--ink); }
+
+		@media (max-width: 860px) {
+			.hero { grid-template-columns: 1fr; }
+			.grid { grid-template-columns: 1fr 1fr; }
+			.steps { grid-template-columns: 1fr; }
+		}
+		@media (max-width: 540px) {
+			.grid { grid-template-columns: 1fr; }
+			header nav .hide-sm { display: none; }
+			.btn { width: 100%; justify-content: center; }
+		}
+		@media (prefers-reduced-motion: reduce) {
+			.ab-wave rect.bar { transition: none; }
+		}
+	</style>
+</head>
+<body>
+	<header>
+		<div class="wrap">
+			<a class="mark" href="#" aria-label="WaveWeaver home">
+				<svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" fill="#0a0a0a"/><path d="M4 16h3v-6h3v12h3V6h3v20h3V10h3v12h3v-6h3" fill="none" stroke="#ff4f00" stroke-width="2.5"/></svg>
+				WaveWeaver
+			</a>
+			<nav>
+				<a class="hide-sm" href="#features">Features</a>
+				<a class="hide-sm" href="#start">Get started</a>
+				<a href="https://github.com/steftsotras/WaveWeaver">GitHub</a>
+			</nav>
+		</div>
+	</header>
+
+	<main>
+		<div class="wrap hero">
+			<div>
+				<h1>Your little studio for sound and video.</h1>
+				<p class="lede">Trim, clean up, caption, mix and master on your own computer. Every change previews on a short clip first, so you hear before and after side by side before a two-hour file is touched.</p>
+				<div class="cta">
+					<a class="btn" href="https://github.com/steftsotras/WaveWeaver/releases/latest">
+						<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v10M3.5 6.5 8 11l4.5-4.5M2 14.5h12" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+						Download for Windows
+					</a>
+					<a class="btn ghost" href="https://github.com/steftsotras/WaveWeaver">View the source</a>
+				</div>
+				<p class="meta">v1.0.0 · free and open source (AGPL-3.0) · Windows 10/11 · ~120 MB</p>
+			</div>
+
+			<figure class="ab" aria-label="Preview demo: switch between before and after">
+				<div class="ab-top"><span>interview.mp4 · 00:42.10 to 00:52.10</span><span>preview</span></div>
+				<svg class="ab-wave" id="wave" viewBox="0 0 400 140" preserveAspectRatio="none" role="img" aria-label="Waveform of the previewed clip"></svg>
+				<div class="ab-row">
+					<div class="ab-toggle" role="group" aria-label="Which side to hear">
+						<button type="button" data-side="a" aria-pressed="false">A · before</button>
+						<button type="button" data-side="b" aria-pressed="true">B · after</button>
+					</div>
+					<span class="ab-lufs" id="lufs">−16.0 LUFS · noise <b>removed</b></span>
+				</div>
+				<div class="ab-cmd" id="cmd">denoise → de-hum → compressor → loudness −16</div>
+			</figure>
+		</div>
+
+		<section id="features">
+			<div class="wrap">
+				<h2>What it does</h2>
+				<div class="grid">
+					<div class="cell">
+						<svg class="ico" viewBox="0 0 36 36"><path d="M4 18h4v-8h4v16h4V6h4v24h4V12h4v12h4v-6"/></svg>
+						<h3>Edit in one pass</h3>
+						<p>Trim, cut the pauses, EQ, compress, fade and reframe for vertical. Stack the steps and render once.</p>
+					</div>
+					<div class="cell">
+						<svg class="ico" viewBox="0 0 36 36"><path d="M4 22c4-10 6-10 8 0s4 10 8 0 4-10 8 0 4 6 4 6"/><path d="M4 30h28"/></svg>
+						<h3>Clean up audio</h3>
+						<p>Remove noise, hum, harsh "s" sounds and clicks. Learn the noise from a quiet gap for a cleaner result.</p>
+					</div>
+					<div class="cell">
+						<svg class="ico" viewBox="0 0 36 36"><rect x="4" y="8" width="28" height="20"/><path d="M9 21h8M20 21h7M9 16h18"/></svg>
+						<h3>Captions</h3>
+						<p>Transcribe with Whisper, fix the text, translate it, then export subtitles or burn them in.</p>
+					</div>
+					<div class="cell">
+						<svg class="ico" viewBox="0 0 36 36"><path d="M4 10h28M4 18h28M4 26h28"/><rect x="9" y="7" width="4" height="6"/><rect x="21" y="15" width="4" height="6"/><rect x="14" y="23" width="4" height="6"/></svg>
+						<h3>Mix and master</h3>
+						<p>Music ducks under your voice by itself. Master with presets for podcasts and streaming, or match a reference track.</p>
+					</div>
+					<div class="cell">
+						<svg class="ico" viewBox="0 0 36 36"><path d="M18 4v20M10 16l8 8 8-8M6 31h24"/></svg>
+						<h3>Downloads</h3>
+						<p>Grab a video, an audio track, a playlist or just the captions from YouTube and many other sites, straight into your bins.</p>
+					</div>
+					<div class="cell">
+						<svg class="ico" viewBox="0 0 36 36"><rect x="6" y="6" width="24" height="24"/><circle cx="14" cy="18" r="3"/><circle cx="22" cy="14" r="3"/><path d="M14 6v9M14 21v9M22 6v5M22 17v13"/></svg>
+						<h3>Your plugins</h3>
+						<p>Load your VST3 effects, open their own windows, and use them like any other step.</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section id="start">
+			<div class="wrap">
+				<h2>Get started in three steps</h2>
+				<ol class="steps">
+					<li>
+						<h3>Install</h3>
+						<p>Download the installer and run it. No admin rights needed.</p>
+					</li>
+					<li>
+						<h3>Set up</h3>
+						<p>Pick where your media and models live. Setup fetches ffmpeg, Python and the tools you choose.</p>
+					</li>
+					<li>
+						<h3>Drop in a file</h3>
+						<p>Open it on the Desk, try a preset on a short clip, and render when it sounds right.</p>
+					</li>
+				</ol>
+			</div>
+		</section>
+
+		<!--
+			Later: tutorials and screenshots.
+			<section id="tutorials"> … video embed and step-by-step guides … </section>
+			<section id="gallery"> … screenshots of the Desk, Captions, Mix … </section>
+		-->
+
+		<section>
+			<div class="wrap closer">
+				<h2>Everything stays on your machine.</h2>
+				<a class="btn" href="https://github.com/steftsotras/WaveWeaver/releases/latest">
+					<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1v10M3.5 6.5 8 11l4.5-4.5M2 14.5h12" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+					Download WaveWeaver
+				</a>
+			</div>
+		</section>
+	</main>
+
+	<footer>
+		<div class="wrap">
+			<span>WaveWeaver · <a href="https://github.com/steftsotras/WaveWeaver/blob/main/LICENSE">AGPL-3.0</a></span>
+			<span>Built on <a href="https://ffmpeg.org">ffmpeg</a>, <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> and <a href="https://github.com/SYSTRAN/faster-whisper">faster-whisper</a></span>
+		</div>
+	</footer>
+
+	<script>
+		// A/B demo: the same clip, before (noisy, uneven) and after (clean, level).
+		(function () {
+			var svg = document.getElementById('wave');
+			var lufs = document.getElementById('lufs');
+			var cmd = document.getElementById('cmd');
+			var N = 64, W = 400, H = 140, bw = W / N;
+			var ns = 'http://www.w3.org/2000/svg';
+			var seed = 7;
+			function rnd() { seed = (seed * 16807) % 2147483647; return seed / 2147483647; }
+
+			// Speech-like envelope: words with gaps between them.
+			var speech = [], noise = [];
+			for (var i = 0; i < N; i++) {
+				var word = Math.sin(i / 3.1) * Math.sin(i / 7.3 + 1) ;
+				var s = Math.max(0, word) * (0.6 + rnd() * 0.4);
+				speech.push(s);
+				noise.push(0.12 + rnd() * 0.1);
+			}
+			var before = speech.map(function (s, i) { return Math.min(1, s * (0.5 + 0.5 * Math.sin(i / 9)) + noise[i]); });
+			var after = speech.map(function (s) { return Math.min(1, s * 0.85 + 0.02); });
+
+			var sel = document.createElementNS(ns, 'rect');
+			sel.setAttribute('class', 'sel');
+			sel.setAttribute('x', 0); sel.setAttribute('y', 0);
+			sel.setAttribute('width', W); sel.setAttribute('height', H);
+			svg.appendChild(sel);
+
+			var bars = [];
+			for (var j = 0; j < N; j++) {
+				var r = document.createElementNS(ns, 'rect');
+				r.setAttribute('class', 'bar');
+				r.setAttribute('x', j * bw + bw * 0.2);
+				r.setAttribute('width', bw * 0.6);
+				svg.appendChild(r);
+				bars.push(r);
+			}
+			var head = document.createElementNS(ns, 'line');
+			head.setAttribute('class', 'head');
+			head.setAttribute('y1', 0); head.setAttribute('y2', H);
+			svg.appendChild(head);
+
+			var copy = {
+				a: ['−22.7 LUFS · noise <b>audible</b>', 'original, untouched'],
+				b: ['−16.0 LUFS · noise <b>removed</b>', 'denoise → de-hum → compressor → loudness −16']
+			};
+			function show(side) {
+				var v = side === 'a' ? before : after;
+				for (var k = 0; k < N; k++) {
+					var h = Math.max(2, v[k] * (H - 10));
+					bars[k].setAttribute('height', h);
+					bars[k].setAttribute('y', (H - h) / 2);
+				}
+				lufs.innerHTML = copy[side][0];
+				cmd.textContent = copy[side][1];
+				document.querySelectorAll('.ab-toggle button').forEach(function (b) {
+					b.setAttribute('aria-pressed', String(b.dataset.side === side));
+				});
+			}
+			document.querySelectorAll('.ab-toggle button').forEach(function (b) {
+				b.addEventListener('click', function () { show(b.dataset.side); });
+			});
+			show('b');
+
+			// Playhead sweeps the preview window, like the A/B player.
+			var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+			var t0 = performance.now();
+			function tick(t) {
+				var x = (((t - t0) / 6000) % 1) * W;
+				head.setAttribute('x1', x); head.setAttribute('x2', x);
+				requestAnimationFrame(tick);
+			}
+			if (reduce) { head.setAttribute('x1', W * 0.35); head.setAttribute('x2', W * 0.35); }
+			else requestAnimationFrame(tick);
+		})();
+	</script>
+</body>
+</html>
