@@ -1,0 +1,31 @@
+# WaveWeaver Engine — core
+fastapi>=0.115
+uvicorn>=0.30
+numpy>=2
+soundfile>=0.12
+
+# Speech: Whisper (transcribe / translate→en) + Silero VAD, and the
+# CTranslate2 runtime NLLB-200 also uses
+faster-whisper>=1.2
+
+# Cleanup, effects, mastering
+noisereduce>=3
+pedalboard>=0.9
+matchering>=2.0
+
+# Caption translation with Claude (optional at runtime: needs ANTHROPIC_API_KEY)
+anthropic>=2
+
+# Downloads page: yt-dlp, with yt-dlp-ejs (YouTube's player challenges, run
+# on the studio's Node) and curl_cffi (browser impersonation). The page has
+# an Update button; sites change and yt-dlp releases often.
+yt-dlp[default,curl-cffi]
+
+# GPU (NVIDIA, Windows/Linux): cuBLAS + cuDNN for CTranslate2. Optional —
+# without them everything runs on the CPU.
+# nvidia-cublas-cu12
+# nvidia-cudnn-cu12>=9,<10
+
+# Optional plugins (pull PyTorch, ~2 GB):
+# demucs           # stem separation
+# deepfilternet    # neural voice cleanup

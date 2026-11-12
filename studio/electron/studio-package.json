@@ -1,0 +1,5 @@
+{
+	"name": "waveweaver-server",
+	"private": true,
+	"type": "module"
+}

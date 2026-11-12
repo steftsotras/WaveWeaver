@@ -1,0 +1,26 @@
+# Python engine
+.venv/
+models/
+__pycache__/
+*.pyc
+
+# Studio (see also studio/.gitignore)
+node_modules/
+studio/.svelte-kit/
+studio/build/
+studio/dist/
+studio/media/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+cookies.txt
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+*.log
